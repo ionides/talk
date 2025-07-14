@@ -1,0 +1,212 @@
+---
+title: " Toward automatically differentiable particle filters for phylodynamic inference"
+author: "Edward Ionides"
+format:
+  beamer:
+    cite-method: natbib
+    biblio-style: apalike
+bibliography: bib.bib
+
+---
+
+## Outline
+
+- What is automatic differentiation (AD)?
+
+- Why is AD important for statistical inference? Existing evidence.
+
+- What has delayed the impact of AD for inference on nonlinear stochastic dynamic systems?
+
+- AD for simulation-based inference on mechanistic models: AD for particle filters using GPUs
+
+- Toward AD for phylodynamic inference
+
+
+## Introduction to automatic differentiation (AD)
+
+- AD is numerical differentation where compiled code automatically computes a massive chain rule, taking advantage of exact expressions for the numerical derivative of basic operations (+, -, $\times$, $\log$, $\exp$, $\sin$, $\cos$, etc).
+
+- AD does not involve symbolic algebra.
+
+- Modern compilers make AD available for arbitrary programs.
+
+- JAX, a Python extension, does AD with automatic parallelization for CPU or GPU.
+
+
+## Modern statistical methods powered by AD
+
+- Deep learning (also uses GPU)
+
+- Stan: Hamiltonian Markov chain Monte Carlo
+
+- Prophet: automatic forecasting
+
+- AD model builder (TMB): random effect models in ecology and fisheries
+
+- Conclusion: AD has allowed growth in model compexity and data size.
+
+
+## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
+
+- Partially observed Markov process (POMP) models provide a framework for mechanistic modeling of dynamic systems with noisy measurements.
+
+- PF uses a POMP model to generate an ensemble of forecasts for each successive observation.
+
+- When the observation is recorded, it is "assimilated" into the forecast by resampling the ensemble members with weight proportional to the probability of the observation given the forecast for that ensemble member.
+
+- Remarkably, these iterated forecast and correction steps provide an unbiased estimate of the likelihood for the model.
+
+- PF just needs a simulator from the dynamic model, not transition probabilities. It is plug-and-play.
+
+
+## Why is AD not standard for the particle filter (PF) likelihood?
+
+- Likelihood evaluation and maximization permits parameter estimation, confidence intervals, diagnostic testing, model selection.
+
+- Derivatives help with maximization. They also help with Bayesian inference, via Hamiltonian Monte Carlo (HMC).
+
+- So, why doesn't everyone use AD for PF?
+
+- Technical difficulties
+
+    1. Resampling is discontinuous: discrete and so piecewise constant.
+    
+    2. The derivative estimate can be numerically unstable even when the log-likelihood estimate is stable.
+
+
+## Hypothesis: PF $+$ AD $+$ GPU is a scientific opportunity
+
+- Particle filter methods have proved effective where they are applicable because
+
+    + They approximate the actual likelihood: statistical efficiency.
+
+    + Simulation-based "plug-and-play" structure is convenient for scientific exploration.
+
+<!--
+    + This "likelihood-free" likelihood-based inference sounds too good to be true, but it is routine for small to medium scale analysis.
+-->
+
+- Deep learning methods use AD $+$ GPU.
+
+    + Artificial neurons with arbitrary weight propagation rules should be less pertinent than particles that directly simulate the dynamic process and are properly weighted to estimate the likelihood.
+
+
+## Previous attempts at AD for PF
+
+- Approximating the particle filter using deep learning.
+
+- Ignoring the resampling when calculating the derivative.
+
+- Obtaining a smooth particle filter at the cost of inferior scaling and loss of the plug-and-play property.
+
+- AD for smooth functions estimated by Monte Carlo expectation of non-smooth functions has been widely studied. In the contect of PF, we additionally need stability for a long time series.
+
+### We looked for a numerically stable, plug-and-play, automatically differentiable particle filter that maintains the guarantee of unbiased likelihood evaluation.
+
+
+
+## Differentiated Measurement Off Parameter (DMOP) filter
+
+* A numerically stable, plug-and-play, automatically differentiable particle filter that maintains the guarantee of unbiased likelihood evaluation.
+
+### Measurement Off-Parameter (MOP-$\alpha$)
+
+* A particle filter at parameter $\phi$ is smoothly continued to $\theta\neq\phi$, keeping resampling decisions fixed for the measurement at $\phi$ and accounting for this via measurement weights.
+
+* _Off-parameter_ resampling is analogous to _off-policy_ reinforcement learning.
+
+* Log-measurement weights are discounted by a factor $\alpha=1-\epsilon$ to add stability. At $\theta=\phi$, log-measurement weights are all 0, so discounting has no effect.
+
+### DMOP-$\alpha$ is differentiated MOP-$\alpha$
+
+* The derivative of MOP-$\alpha$ at $\theta=\phi$ can be computed using AD applied to an algorithm similar to a basic particle filter.
+
+
+
+
+## Software for DMOP: pypomp
+
+### First, an introduction to the R-pomp family of packages
+
+* The pomp R package has provided a solid, principled, extendable framework for combining time series data with nonlinear stochastic partially observed mechanistic dynamic models.
+
+* Extensions: panel time series data (panelPomp), spatiotemporal data (spatPomp), phylodynamic data (phyloPomp).
+
+* Limitations: R is not convenient for AD or GPU computing. To incorporate these, it may be better to start afresh.
+
+### pypomp is a Python port of pomp using AD and GPU.
+
+* Current status: pypomp is in alpha development at https://github.com/pypomp. The brave are welcome to join.
+
+
+
+## Why JAX?
+
+* Actively developed by Google: "Google researchers have built and trained models like Gemini and Gemma on JAX, and it’s also used by researchers for a wide range of advanced applications." (https://io.google/2025/explore/technical-session-1)
+
+* JAX code is Python, replacing numpy and scipy with jax.numpy and jax.scipy
+
+* JAX composable transformations:
+    + vmap: vectorization
+    + grad: autodiff
+    + jit: just-in-time compilation
+
+* JAX uses XLA: accelerated linear algebra
+    + distributes work across CPU/GPU/TPU cores
+
+
+
+## A previously difficult POMP likelihood maximization is easy with AD and quick/cheap with GPU
+
+- We benchmark on an SIR$^3$S model fitted to 50yr of monthly cholera mortality in historical Dacca, Bangladesh.
+
+- Flexible modeling of seasonality and long-term trends lead to a highly parameterized model.
+
+- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in \citet{king08}. Possible with a large computing cluster and considerable dedication.
+
+- Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
+
+- Here, we initialize with IF2 and then do stochastic gradient ascent with DMOP-$\alpha$.
+
+
+## Results
+
+
+
+
+## pypomp.panel, pypomp.spat, pypomp.phylo
+
+* There is no fundamental obstacle to including the R-pomp extensions in pypomp.
+
+* DMOP in pypomp can improve maximization, and facilitate parallelization, but it does not deal with the "curse of dimensionality."  
+
+* The basic particle filter can scale poorly with the dimension of the latent process. Intuition: importance sampling in a high-dimensional space is hard.
+
+* In the basic phyloPomp particle filter, scaling can be poor with the number of demes: It is hard for the particles to maintain representative diversity for deme membership in a large tree.
+
+* This is similar to the spatPomp problem of maintaining representative diversity at many spatial locations.
+
+
+
+## SpatPOMPs and the curse of dimensionality for SMC
+
+Two approaches to scalability with (almost) full information.
+
+1. **Guided particles**. Knowledge of the future can be built into proposal distributions to ensure that some particles are consistent with the data.
+
+2. **Block particles**. Approximating conditional weak dependence by conditional independence.
+    + Algorithmically, forecasts are made from the coupled spatiotemporal model, but data assimilation is carried out separately for each block.
+    + Conditional on the coupled dynamics and the measurements, latent states for separate spatial blocks are approximated as conditionally independent.
+    + This still permits dependence via the coupled dynamics.
+
+Non-likelihood approaches could be implemented in phyloPomp: variational Bayes, ensemble Kalman filter, neural posterior estimation, 
+
+
+## Summary
+
+* Remarkably, likelihood-based inference is possible from noisy measurements of complex, high-dimensional, nonlinear dynamic systems.
+
+* Examples follow.
+
+* AD and massively parallel computing will push capabilities to a new level.
+
