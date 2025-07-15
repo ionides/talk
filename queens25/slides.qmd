@@ -168,10 +168,41 @@ bibliography: bib.bib
 
 - Here, we initialize with IF2 and then do stochastic gradient ascent with DMOP-$\alpha$.
 
+## Data and model diagram
 
-## Results
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=10cm]{tikzcholera.png}
+    \caption{A compartment flow diagram for the \cite{king08} Dhaka cholera model.}
+    \label{fig:tikz-cholera}
+\end{figure}
 
 
+## Results 1. Speed
+
+- PF on 1 cpu core with $10^4$ particles using R-pomp with the model compiled into C
+
+    + 9.75 sec
+
+- PF on a $10^4$ core GPU with $10^4$ particles using pypomp
+
+    + 0.17 sec
+
+- Here, a $10^4% core GPU is worth 57 CPU cores. Further GPU optimization may be available.
+
+- This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
+
+
+## Results 2. The value of AD
+
+\begin{figure}[ht]
+\vspace{-5mm}
+    \centering
+    \includegraphics[width=5.2cm]{boxplot.png}
+    \includegraphics[width=5.2cm]{boxplot_all.png}
+    \caption{Performance of IFAD and IF2. \textbf{A:} the best out of every 10 runs. \textbf{B:} All searches. 
+    The dotted red line shows the true maximized log-likelihood.}
+\end{figure}
 
 
 ## pypomp.panel, pypomp.spat, pypomp.phylo
