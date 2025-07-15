@@ -1,10 +1,17 @@
 ---
 title: " Toward automatically differentiable particle filters for phylodynamic inference"
 author: "Edward Ionides"
+date: July 25, 2025
+date-format: long
+subtitle: |
+  |      
+  | Workshop on Mathematical Ecology
+  | Queen's University, Kingston, ON
 format:
   beamer:
     cite-method: natbib
     biblio-style: apalike
+    institute: "University of Michigan"
 bibliography: bib.bib
 
 ---
@@ -168,14 +175,25 @@ bibliography: bib.bib
 
 - Here, we initialize with IF2 and then do stochastic gradient ascent with DMOP-$\alpha$.
 
-## Data and model diagram
+## Model diagram (top) and data (bottom)
 
-\begin{figure}[htbp!]
-    \centering
-    \includegraphics[width=10cm]{tikzcholera.png}
-    \caption{A compartment flow diagram for the \cite{king08} Dhaka cholera model.}
-    \label{fig:tikz-cholera}
-\end{figure}
+\includegraphics[width=10cm]{tikzcholera.png}
+
+```{python}
+#| label: plot_dacca
+#| echo: false
+import pypomp as pp
+import matplotlib.pyplot as plt
+df = pp.dacca().ys
+plt.figure(figsize=(8, 2.5))
+plt.plot(df.index, df['deaths'], marker='o')
+plt.xlabel('Date')
+plt.ylabel('Monthly Deaths')
+# plt.title('Deaths Over Time')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
 
 
 ## Results 1. Speed
