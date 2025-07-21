@@ -50,7 +50,7 @@ bibliography: bib.bib
 
 - AD model builder (TMB): random effect models in ecology and fisheries
 
-- Conclusion: AD has allowed growth in model compexity and data size.
+### Conclusion: AD has allowed growth in model compexity and data size.
 
 
 ## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
@@ -106,19 +106,21 @@ bibliography: bib.bib
 
 - Obtaining a smooth particle filter at the cost of inferior scaling and loss of the plug-and-play property.
 
-- AD for smooth functions estimated by Monte Carlo expectation of non-smooth functions has been widely studied. In the contect of PF, we additionally need stability for a long time series.
+- AD for smooth functions estimated by Monte Carlo expectation of non-smooth functions has been widely studied. Applied to PF, previous methods have struggled with stability for a long time series.
 
-### We looked for a numerically stable, plug-and-play, automatically differentiable particle filter that maintains the guarantee of unbiased likelihood evaluation.
+\vspace{2mm}
+
+### We looked for a plug-and-play particle filter equipped with automatic differention that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivate estimates.
 
 
 
 ## Differentiated Measurement Off Parameter (DMOP) filter
 
-* A numerically stable, plug-and-play, automatically differentiable particle filter that maintains the guarantee of unbiased likelihood evaluation.
+* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation.
 
 ### Measurement Off-Parameter (MOP-$\alpha$)
 
-* A particle filter at parameter $\phi$ is smoothly continued to $\theta\neq\phi$, keeping resampling decisions fixed for the measurement at $\phi$ and accounting for this via measurement weights.
+* A MOP particle filter at parameter $\theta$ is a smooth continuation of the filter at $\phi$, fixing resampling decisions for $\phi$ and accounting for this via ``off-parameter'' measurement weights.
 
 * _Off-parameter_ resampling is analogous to _off-policy_ reinforcement learning.
 
@@ -141,7 +143,7 @@ bibliography: bib.bib
 
 * Limitations: R is not convenient for AD or GPU computing. To incorporate these, it may be better to start afresh.
 
-### pypomp is a Python port of pomp using AD and GPU.
+### pypomp is a Python port of pomp enabling AD and GPU.
 
 * Current status: pypomp is in alpha development at https://github.com/pypomp. The brave are welcome to join.
 
