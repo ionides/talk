@@ -1,6 +1,9 @@
 ---
 title: " Toward automatically differentiable particle filters for phylodynamic inference"
-author: "Edward Ionides"
+author:
+  - "Edward Ionides \\newline \\newline
+  pypomp developers: Kevin Tan, Jesse Wheeler, Jun Chen, \\newline
+  Bo Yang, Aaron Abkemeier, Aaron King, Kunyang He"
 date: July 25, 2025
 date-format: long
 subtitle: |
@@ -12,6 +15,9 @@ format:
     cite-method: natbib
     biblio-style: apalike
     institute: "University of Michigan"
+    header-includes: |
+      \setbeamertemplate{footline}[page number]
+
 bibliography: bib.bib
 
 ---
@@ -116,7 +122,7 @@ bibliography: bib.bib
 
 ## Differentiated Measurement Off Parameter (DMOP) filter
 
-* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation.
+* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation \cite{tan24}.
 
 ### Measurement Off-Parameter (MOP-$\alpha$)
 
@@ -130,7 +136,60 @@ bibliography: bib.bib
 
 * The derivative of MOP-$\alpha$ at $\theta=\phi$ can be computed using AD applied to an algorithm similar to a basic particle filter.
 
+## Measurement off-parameter filter, MOP-$\alpha$
 
+**First pass:** Set $\theta=\phi$, yielding $X_{n,j}^{P,\phi}$, $X_{n,j}^{F,\phi}$, $g^{\phi}_{n,j}$.
+            
+**Second pass:** Filter at $\theta\neq \phi$ using the same RNG seed
+
+**For** $n=1,...,N$:
+
+1. $w_{n,j}^{P,\theta} = \big(w_{n-1,j}^{F,\theta}\big)^\alpha$
+
+2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
+
+3. $g^{\theta}_{n,j}={f}_{{Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+
+4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
+
+5. Draw $k_{1:J}$ with $P\big(k_{j}=m\big) \propto g^{\phi}_{n,m}$.
+
+6. ${X}_{n,j}^{F,\theta}={X}_{n,k_{j}}^{P,\theta}$. 
+
+7. $w_{n,j}^{F,\theta}= w^{P,\theta}_{n,k_j} \, g^{\theta}_{n,k_j} \, \big/ \, { g^{\phi}_{n,k_j}}$.
+
+
+## Differentiated filter, DMOP-$\alpha$
+
+**First pass:** Evaluate and build computation graph
+            
+**Second pass:** Differentiate via the chain rule
+
+**For** $n=1,...,N$:
+
+1. $w_{n,j}^{P,\theta} = \big(w_{n-1,j}^{F,\theta}\big)^\alpha$
+
+2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
+
+3. $g^{\theta}_{n,j}={f}_{{Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+
+4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
+
+5. Draw $k_{1:J}$ with $P\big(k_{j}=m\big) \propto g^{\theta}_{n,m}$.
+
+6. ${X}_{n,j}^{F,\theta}={X}_{n,k_{j}}^{P,\theta}$. 
+
+7. $w_{n,j}^{F,\theta}= w^{P,\theta}_{n,k_j} \, g^{\theta}_{n,k_j} \, \big/ \mathtt{stop\_gradient}( g^{\theta}_{n,k_j})$.
+
+## Comparing MOP-$\alpha$ and DMOP-$\alpha$
+
+- The two algorithms are similar
+
+- DMOP-$\alpha$ only has $\theta$, not $\phi$.
+
+- The role of $\phi$ in MOP-$\alpha is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
+
+    +  $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
 
 
 ## Software for DMOP: pypomp
@@ -208,10 +267,20 @@ plt.show()
 
     + 0.17 sec
 
-- Here, a $10^4% core GPU is worth 57 CPU cores. Further GPU optimization may be available.
+- Here, a $10^4% core GPU is worth 57 CPU cores.
 
 - This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
 
+- Additional vectorization helps for replicated GPU evaluations
+
+    + For 360 replications of iterated filtering, a GPU is worth 450 CPU cores.
+
+<!--
+7.4 * 36 = 266.4 for pfilter, 120 reps
+12.53 * 36 = 451.08 for mif, 360 reps
+results for 3000 particles, pfilter on dacca
+AJA thesis proposal
+-->
 
 ## Results 2. The value of AD
 
@@ -260,4 +329,10 @@ Non-likelihood approaches could be implemented in phyloPomp: variational Bayes, 
 * Examples follow.
 
 * AD and massively parallel computing will push capabilities to a new level.
+
+# Thank you!   
+
+
+# References
+
 
