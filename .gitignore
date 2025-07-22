@@ -24,3 +24,6 @@ cache
 .DS_Store
 *.Rproj
 .Rproj.user
+
+.venv
+slides_files

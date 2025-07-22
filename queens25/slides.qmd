@@ -326,8 +326,6 @@ Non-likelihood approaches could be implemented in phyloPomp: variational Bayes, 
 
 * Remarkably, likelihood-based inference is possible from noisy measurements of complex, high-dimensional, nonlinear dynamic systems.
 
-* Examples follow.
-
 * AD and massively parallel computing will push capabilities to a new level.
 
 # Thank you!   
