@@ -191,6 +191,20 @@ bibliography: bib.bib
 
     +  $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
 
+## Outline of theory for MOP-$\alpha$ and DMOP-$\alpha$
+
+1. MOP-$1$  converges almost surely to the likelihood for all $\theta$, as does MOP-$\alpha$ for $\theta=\phi$, as the number of particles, $J$, increases.
+
+2. The derivative of MOP-$1$ provides a strongly consistent estimate of the log-likelihood derivative.
+
+3. DMOP-$\alpha$ evaluates the derivative of MOP-$\alpha$ at $\theta=\phi$.
+
+4. DMOP-$\alpha$ has a bias bounded linearly by the length, $N$, of the time series with a coefficient that decreases to zero as $\alpha\to 1$.
+
+5. The variance of DMOP-$\alpha$ is $O(N^4/J)$ at $\alpha=1$ but $O(N/J)$ for $\alpha<1$.
+
+Regularity conditions: 1 and 2 require bounded derivatives. 4 and 5 require a mixing property for the latent Markov process.
+
 
 ## Software for DMOP: pypomp
 
