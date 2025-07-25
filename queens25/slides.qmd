@@ -148,7 +148,7 @@ bibliography: bib.bib
 
 2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
 
-3. $g^{\theta}_{n,j}={f}_{{Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+3. $g^{\theta}_{n,j}={f}_{ {Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
 
 4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
 
@@ -171,7 +171,7 @@ bibliography: bib.bib
 
 2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
 
-3. $g^{\theta}_{n,j}={f}_{{Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+3. $g^{\theta}_{n,j}={f}_{ {Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
 
 4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
 
