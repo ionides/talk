@@ -122,7 +122,7 @@ bibliography: bib.bib
 
 ## Differentiated Measurement Off Parameter (DMOP) filter
 
-* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation \cite{tan24}.
+* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation \citep{tan24}.
 
 ### Measurement Off-Parameter (MOP-$\alpha$)
 
@@ -138,9 +138,9 @@ bibliography: bib.bib
 
 ## Measurement off-parameter filter, MOP-$\alpha$
 
-**First pass:** Set $\theta=\phi$, yielding $X_{n,j}^{P,\phi}$, $X_{n,j}^{F,\phi}$, $g^{\phi}_{n,j}$.
+**First pass:** Set $\theta=\phi$ and compute $g^{\phi}_{n,j}$.
             
-**Second pass:** Filter at $\theta\neq \phi$ using the same RNG seed
+**Second pass:** Set $\theta\neq \phi$ and use the same randon number seed
 
 **For** $n=1,...,N$:
 
@@ -187,7 +187,7 @@ bibliography: bib.bib
 
 - DMOP-$\alpha$ only has $\theta$, not $\phi$.
 
-- The role of $\phi$ in MOP-$\alpha is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
+- The role of $\phi$ in MOP-$\alpha$ is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
 
     +  $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
 
@@ -202,7 +202,7 @@ bibliography: bib.bib
 
 * Limitations: R is not convenient for AD or GPU computing. To incorporate these, it may be better to start afresh.
 
-### pypomp is a Python port of pomp enabling AD and GPU.
+### pypomp is a Python extension of pomp enabling AD and GPU.
 
 * Current status: pypomp is in alpha development at https://github.com/pypomp. The brave are welcome to join.
 
@@ -234,7 +234,7 @@ bibliography: bib.bib
 
 - Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
 
-- Here, we initialize with IF2 and then do stochastic gradient ascent with DMOP-$\alpha$.
+- Here, we make a preliminary search with IF2, followed by stochastic gradient ascent with DMOP-$\alpha$.
 
 ## Model diagram (top) and data (bottom)
 
@@ -267,7 +267,7 @@ plt.show()
 
     + 0.17 sec
 
-- Here, a $10^4% core GPU is worth 57 CPU cores.
+- Here, a $10^4$ core GPU is worth 57 CPU cores.
 
 - This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
 
@@ -308,7 +308,7 @@ AJA thesis proposal
 
 
 
-## SpatPOMPs and the curse of dimensionality for SMC
+## SpatPOMPs and the curse of dimensionality for PF
 
 Two approaches to scalability with (almost) full information.
 
