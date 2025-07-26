@@ -1,0 +1,336 @@
+---
+title: "Accelerated Inference for Partially Observed Markov Processes using Automatic Differentiation"
+author:
+  - "Edward Ionides \\newline
+  Coauthors: Kevin Tan and Giles Hooker \\newline
+  Other pypomp developers: Jesse Wheeler, Jun Chen, \\newline
+  Bo Yang, Aaron Abkemeier, Aaron King, Kunyang He"
+date: Aug 4, 2025
+date-format: long
+subtitle: |
+  |      
+  | Innovative Methodologies for Spatiotemporal Modeling and Inference
+  | JSM 2025
+format:
+  beamer:
+    cite-method: natbib
+    biblio-style: apalike
+    institute: "University of Michigan"
+    header-includes: |
+      \setbeamertemplate{footline}[page number]
+
+bibliography: bib.bib
+
+---
+
+## Spatiotemporal partially observed Markov process (SpatPOMP) models
+
+Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
+
+- Asfaw, Park, King & Ionides (2024). spatPomp: An R package for spatiotemporal partially observed Markov process models. _Journal of Open Source Software._
+
+- Ning & Ionides (2023). Iterated block particle filter for high-dimensional parameter learning: Beating the curse of dimensionality. _Journal of Machine Learning Research._
+
+- Li, Ionides, King, Pascual & Ning (2024). Inference on spatiotemporal dynamics for coupled biological populations. _Journal of the Royal Society Interface_.
+
+- Wheeler, Rosengart, Jiang, Tan, Treutle & Ionides (2024). Informing policy via dynamic models: Cholera in Haiti. _PLOS Computational Biology._
+
+
+## Outline
+
+- What is automatic differentiation (AD)?
+
+- Why is AD important for statistical inference? Existing evidence.
+
+- What has delayed the impact of AD for inference on nonlinear stochastic dynamic systems?
+
+- AD for simulation-based inference on mechanistic models using particle filters and GPUs.
+
+## Introduction to automatic differentiation (AD)
+
+- AD is numerical differentation where compiled code automatically computes a massive chain rule, taking advantage of exact expressions for the numerical derivative of basic operations (+, -, $\times$, $\log$, $\exp$, $\sin$, $\cos$, etc).
+
+- AD does not involve symbolic algebra.
+
+- Modern compilers make AD available for arbitrary programs.
+
+- JAX, a Python extension, does AD with automatic parallelization for CPU or GPU.
+
+
+## Modern statistical methods powered by AD
+
+- Deep learning (also uses GPU)
+
+- Stan: Hamiltonian Markov chain Monte Carlo
+
+- Prophet: automatic forecasting
+
+<!--
+- AD model builder (TMB): random effect models in ecology and fisheries
+-->
+
+### Conclusion: AD has allowed growth in model compexity and data size.
+
+
+## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
+
+- Partially observed Markov process (POMP) models provide a framework for mechanistic modeling of dynamic systems with noisy measurements.
+
+- PF uses a POMP model to generate an ensemble of forecasts for each successive observation.
+
+- When the observation is recorded, it is "assimilated" into the forecast by resampling the ensemble members with weight proportional to the probability of the observation given the forecast for that ensemble member.
+
+- Remarkably, these iterated forecast and correction steps provide an unbiased estimate of the likelihood for the model.
+
+- PF just needs a simulator from the dynamic model, not transition probabilities. It is plug-and-play.
+
+
+## Why is AD not standard for the particle filter (PF) likelihood?
+
+<!--
+- Likelihood evaluation and maximization permits parameter estimation, confidence intervals, diagnostic testing, model selection.
+
+- Derivatives help with maximization. They also help with Bayesian inference, via Hamiltonian Monte Carlo (HMC).
+-->
+
+- So, why doesn't everyone use AD for PF?
+
+- Technical difficulties
+
+    1. Resampling is discontinuous: discrete and so piecewise constant.
+    
+    2. The derivative estimate can be numerically unstable even when the log-likelihood estimate is stable.
+
+ <!--
+## Hypothesis: PF $+$ AD $+$ GPU is a scientific opportunity
+
+- Particle filter methods have proved effective where they are applicable because
+
+    + They approximate the actual likelihood: statistical efficiency.
+
+    + Simulation-based "plug-and-play" structure is convenient for scientific exploration.
+
+
+- Deep learning methods use AD $+$ GPU.
+
+    + Artificial neurons with arbitrary weight propagation rules should be less pertinent than particles that directly simulate the dynamic process and are properly weighted to estimate the likelihood.
+
+-->
+
+## Previous attempts at AD for PF
+
+- Approximating the particle filter using deep learning.
+
+- Ignoring the resampling when calculating the derivative.
+
+- Obtaining a smooth particle filter at the cost of inferior scaling and loss of the plug-and-play property.
+
+- AD for smooth functions estimated by Monte Carlo expectation of non-smooth functions has been widely studied. Applied to PF, previous methods have struggled with stability for a long time series.
+
+\vspace{2mm}
+
+### We looked for a plug-and-play particle filter equipped with automatic differention that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivate estimates.
+
+
+
+## Differentiated Measurement Off Parameter (DMOP) filter
+
+* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation \citep{tan24}.
+
+### Measurement Off-Parameter (MOP-$\alpha$)
+
+* A MOP particle filter at parameter $\theta$ is a smooth continuation of the filter at $\phi$, fixing resampling decisions for $\phi$ and accounting for this via ``off-parameter'' measurement weights.
+
+* _Off-parameter_ resampling is analogous to _off-policy_ reinforcement learning.
+
+* Log-measurement weights are discounted by a factor $\alpha=1-\epsilon$ to add stability. At $\theta=\phi$, log-measurement weights are all 0, so discounting has no effect.
+
+### DMOP-$\alpha$ is differentiated MOP-$\alpha$
+
+* The derivative of MOP-$\alpha$ at $\theta=\phi$ can be computed using AD applied to an algorithm similar to a basic particle filter.
+
+## Measurement off-parameter filter, MOP-$\alpha$
+
+**First pass:** Set $\theta=\phi$ and compute $g^{\phi}_{n,j}$.
+            
+**Second pass:** Set $\theta\neq \phi$ and use the same randon number seed
+
+**For** $n=1,...,N$:
+
+1. $w_{n,j}^{P,\theta} = \big(w_{n-1,j}^{F,\theta}\big)^\alpha$
+
+2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
+
+3. $g^{\theta}_{n,j}={f}_{ {Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+
+4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
+
+5. Draw $k_{1:J}$ with $P\big(k_{j}=m\big) \propto g^{\phi}_{n,m}$.
+
+6. ${X}_{n,j}^{F,\theta}={X}_{n,k_{j}}^{P,\theta}$. 
+
+7. $w_{n,j}^{F,\theta}= w^{P,\theta}_{n,k_j} \, g^{\theta}_{n,k_j} \, \big/ \, { g^{\phi}_{n,k_j}}$.
+
+
+## Differentiated filter, DMOP-$\alpha$
+
+**First pass:** Evaluate and build computation graph
+            
+**Second pass:** Differentiate via the chain rule
+
+**For** $n=1,...,N$:
+
+1. $w_{n,j}^{P,\theta} = \big(w_{n-1,j}^{F,\theta}\big)^\alpha$
+
+2. ${X}_{n,j}^{P,\theta}\sim \mathtt{process}_n\big(\cdot|{X}_{n-1,j}^{F, \theta};{\theta}\big)$.
+
+3. $g^{\theta}_{n,j}={f}_{ {Y}_{n}|{X}_{n}}(y_{n}^{*}|{X}_{n,j}^{P,\theta};{\theta})$.
+
+4. **Likelihood:** $L_n^{\theta,\alpha} ={\sum_{j=1}^Jg^\theta_{n,j} w^{P,\theta}_{n,j}}\, \big/ {\sum_{j=1}^J  w^{P,\theta}_{n,j}}$. 
+
+5. Draw $k_{1:J}$ with $P\big(k_{j}=m\big) \propto g^{\theta}_{n,m}$.
+
+6. ${X}_{n,j}^{F,\theta}={X}_{n,k_{j}}^{P,\theta}$. 
+
+7. $w_{n,j}^{F,\theta}= w^{P,\theta}_{n,k_j} \, g^{\theta}_{n,k_j} \, \big/ \mathtt{stop\_gradient}( g^{\theta}_{n,k_j})$.
+
+## Comparing MOP-$\alpha$ and DMOP-$\alpha$
+
+- The two algorithms are similar
+
+- DMOP-$\alpha$ only has $\theta$, not $\phi$.
+
+- The role of $\phi$ in MOP-$\alpha$ is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
+
+    +  $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
+
+## Outline of theory for MOP-$\alpha$ and DMOP-$\alpha$
+
+1. MOP-$1$  converges almost surely to the likelihood for all $\theta$, as does MOP-$\alpha$ for $\theta=\phi$, as the number of particles, $J$, increases.
+
+2. The derivative of MOP-$1$ provides a strongly consistent estimate of the log-likelihood derivative.
+
+3. DMOP-$\alpha$ evaluates the derivative of MOP-$\alpha$ at $\theta=\phi$.
+
+4. DMOP-$\alpha$ has a bias bounded linearly by the length, $N$, of the time series with a coefficient that decreases to zero as $\alpha\to 1$.
+
+5. The variance of DMOP-$\alpha$ is $O(N^4/J)$ at $\alpha=1$ but $O(N/J)$ for $\alpha<1$.
+
+Regularity conditions: 1 and 2 require bounded derivatives. 4 and 5 require a mixing property for the latent Markov process.
+
+
+## Software for DMOP: pypomp
+
+### First, an introduction to the R-pomp family of packages
+
+* The pomp R package has provided a solid, principled, extendable framework for combining time series data with nonlinear stochastic partially observed mechanistic dynamic models.
+
+* Extensions: panel time series data (panelPomp), spatiotemporal data (spatPomp), phylodynamic data (phyloPomp).
+
+* Limitations: R is not convenient for AD or GPU computing. To incorporate these, it may be better to start afresh.
+
+### pypomp is a Python extension of pomp enabling AD and GPU.
+
+* Current status: pypomp is in alpha development at https://github.com/pypomp. The brave are welcome to join.
+
+
+
+## Why JAX?
+
+* Actively developed by Google: "Google researchers have built and trained models like Gemini and Gemma on JAX, and it’s also used by researchers for a wide range of advanced applications." (https://io.google/2025/explore/technical-session-1)
+
+* JAX code is Python, replacing numpy and scipy with jax.numpy and jax.scipy
+
+* JAX composable transformations:
+    + vmap: vectorization
+    + grad: autodiff
+    + jit: just-in-time compilation
+
+* JAX uses XLA: accelerated linear algebra
+    + distributes work across CPU/GPU/TPU cores
+
+
+
+## A previously difficult POMP likelihood maximization is easy with AD and quick/cheap with GPU
+
+- We benchmark on an SIR$^3$S model fitted to 50yr of monthly cholera mortality in historical Dacca, Bangladesh.
+
+- Flexible modeling of seasonality and long-term trends lead to a highly parameterized model.
+
+- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in \citet{king08}. Possible with a large computing cluster and considerable dedication.
+
+- Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
+
+- Here, we make a preliminary search with IF2, followed by stochastic gradient ascent with DMOP-$\alpha$.
+
+## Model diagram (top) and data (bottom)
+
+\includegraphics[width=10cm]{../queens25/tikzcholera.png}
+
+```{python}
+#| label: plot_dacca
+#| echo: false
+import pypomp as pp
+import matplotlib.pyplot as plt
+df = pp.dacca().ys
+plt.figure(figsize=(8, 2.5))
+plt.plot(df.index, df['deaths'], marker='o')
+plt.xlabel('Date')
+plt.ylabel('Monthly Deaths')
+# plt.title('Deaths Over Time')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+
+## Results 1. Speed
+
+- PF on 1 cpu core with $10^4$ particles using R-pomp with the model compiled into C
+
+    + 9.75 sec
+
+- PF on a $10^4$ core GPU with $10^4$ particles using pypomp
+
+    + 0.17 sec
+
+- Here, a $10^4$ core GPU is worth 57 CPU cores.
+
+- This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
+
+- Additional vectorization helps for replicated GPU evaluations
+
+    + For 360 replications of iterated filtering, a GPU is worth 450 CPU cores.
+
+<!--
+7.4 * 36 = 266.4 for pfilter, 120 reps
+12.53 * 36 = 451.08 for mif, 360 reps
+results for 3000 particles, pfilter on dacca
+AJA thesis proposal
+-->
+
+## Results 2. The value of AD
+
+\begin{figure}[ht]
+\vspace{-5mm}
+    \centering
+    \includegraphics[width=5.2cm]{../queens25/boxplot.png}
+    \includegraphics[width=5.2cm]{../queens25/boxplot_all.png}
+    \caption{Performance of IFAD and IF2. \textbf{A:} the best out of every 10 runs. \textbf{B:} All searches. 
+    The dotted red line shows the true maximized log-likelihood.}
+\end{figure}
+
+## Summary
+
+* Remarkably, likelihood-based inference is possible from noisy measurements of complex, high-dimensional, nonlinear dynamic systems.
+
+* AD and massively parallel computing will push capabilities to a new level.
+
+* Next step: AD PF advances can be combined with SpatPOMP filtering advances for high-dimensional systems
+
+# Thank you!   
+
+
+# References
+
+
