@@ -11,8 +11,6 @@ Automatic differentiation (AD) has driven recent advances in machine learning, i
 
 ```
 source ~/git/talk/queens25/.venv/bin/activate
-pip install --update pip
-pip install -r requirements.txt
 make slides.pdf
 
 ```

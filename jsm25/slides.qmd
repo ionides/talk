@@ -1,21 +1,19 @@
 ---
 title: "Accelerated Inference for Partially Observed Markov Processes using Automatic Differentiation"
 author:
-  - "Edward Ionides \\newline
-  Coauthors: Kevin Tan and Giles Hooker \\newline
+  - "Edward Ionides\\newline University of Michigan \\newline \\newline
+  Coauthors: Kevin Tan and Giles Hooker \\newline \\newline
   Other pypomp developers: Jesse Wheeler, Jun Chen, \\newline
   Bo Yang, Aaron Abkemeier, Aaron King, Kunyang He"
 date: Aug 4, 2025
 date-format: long
 subtitle: |
   |      
-  | Innovative Methodologies for Spatiotemporal Modeling and Inference
-  | JSM 2025
+  | JSM25: Innovative Methodologies for Spatiotemporal Modeling and Inference
 format:
   beamer:
     cite-method: natbib
     biblio-style: apalike
-    institute: "University of Michigan"
     header-includes: |
       \setbeamertemplate{footline}[page number]
 
