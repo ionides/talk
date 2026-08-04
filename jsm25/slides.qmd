@@ -127,7 +127,7 @@ Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
 
 \vspace{2mm}
 
-### We looked for a plug-and-play particle filter equipped with automatic differention that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivate estimates.
+### We looked for a plug-and-play particle filter equipped with automatic differentiation that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivative estimates.
 
 
 
@@ -137,7 +137,7 @@ Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
 
 ### Measurement Off-Parameter (MOP-$\alpha$)
 
-* A MOP particle filter at parameter $\theta$ is a smooth continuation of the filter at $\phi$, fixing resampling decisions for $\phi$ and accounting for this via ``off-parameter'' measurement weights.
+* A MOP particle filter at parameter $\theta$ is a smooth continuation of the filter at $\phi$, fixing resampling decisions for $\phi$ and accounting for this via "off-parameter" measurement weights.
 
 * _Off-parameter_ resampling is analogous to _off-policy_ reinforcement learning.
 
