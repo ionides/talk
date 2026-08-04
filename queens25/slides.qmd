@@ -37,7 +37,7 @@ bibliography: bib.bib
 
 ## Introduction to automatic differentiation (AD)
 
-- AD is numerical differentation where compiled code automatically computes a massive chain rule, taking advantage of exact expressions for the numerical derivative of basic operations (+, -, $\times$, $\log$, $\exp$, $\sin$, $\cos$, etc).
+- AD is numerical differentiation where compiled code automatically computes a massive chain rule, taking advantage of exact expressions for the numerical derivative of basic operations (+, -, $\times$, $\log$, $\exp$, $\sin$, $\cos$, etc).
 
 - AD does not involve symbolic algebra.
 
@@ -56,7 +56,7 @@ bibliography: bib.bib
 
 - AD model builder (TMB): random effect models in ecology and fisheries
 
-### Conclusion: AD has allowed growth in model compexity and data size.
+### Conclusion: AD has allowed growth in model complexity and data size.
 
 
 ## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
@@ -116,7 +116,7 @@ bibliography: bib.bib
 
 \vspace{2mm}
 
-### We looked for a plug-and-play particle filter equipped with automatic differention that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivate estimates.
+### We looked for a plug-and-play particle filter equipped with automatic differentiation that maintains the guarantee of unbiased likelihood evaluation and provides numerically stable derivative estimates.
 
 
 
@@ -140,7 +140,7 @@ bibliography: bib.bib
 
 **First pass:** Set $\theta=\phi$ and compute $g^{\phi}_{n,j}$.
             
-**Second pass:** Set $\theta\neq \phi$ and use the same randon number seed
+**Second pass:** Set $\theta\neq \phi$ and use the same random number seed
 
 **For** $n=1,...,N$:
 
