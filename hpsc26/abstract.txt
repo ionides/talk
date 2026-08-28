@@ -1,0 +1,14 @@
+
+High Performance Statistical Computing (HSPC)
+https://hpsc4science.org/
+Friday, November 13, 2026, at 11:00 AM ET
+
+TITLE
+Pypomp: Inference for partially observed Markov process models in Python with JAX
+
+ABSTRACT
+Model development and parameter estimation for non-Gaussian partially observed Markov process (POMP) mechanistic models are fundamental challenges in a variety of fields including epidemiology, ecology, and finance. Particle filter methods can provide statistically efficient inference for highly nonlinear POMP models, but their practical application is limited by high computational demands. We introduce Pypomp, a high-performance Python library for statistical inference using POMP models. Pypomp includes state-of-the-art particle filtering algorithms to take advantage of GPU hardware, just-in-time computation, and automatic differentiation accessed using JAX. Basic inference algorithms run up to 1000 faster than on a CPU, and advanced algorithms provide further acceleration. Pypomp provides a comprehensive interface that streamlines model construction, fitting, and analysis, allowing practitioners to develop and evaluate complex models with minimal implementation overhead. We discuss case studies using Pypomp to investigate ecological and epidemiological systems.
+
+BIO
+Prof. Ionides works on statistical analysis of dynamic systems with applications in the biological and health sciences, and specifically in disease transmission. He has developed theoretical and computational aspects of statistical methodologies for inference problems that arise when relating time series data to partially observed stochastic nonlinear disease transmission systems. He has published on the epidemiological dynamics of cholera, COVID-19, HIV, influenza, malaria, measles and polio.  Recently, he has developed methodology for inferring disease transmission dynamics from genetic sequence data on pathogens, and for inference on nonlinear, non-Gaussian spatiotemporal systems. He has developed novel classes of stochastic dynamic models that help to fill the gap between mathematical models of biological systems and statistical models that quantitatively describe available data. Prof. Ionides received his undergraduate degree from University of Cambridge and his PhD from University of California, Berkeley. He is an elected fellow of the American Association for the Advancement of Science, the Institute for Mathematical Statistics, and the International Statistical Institute. 
+
