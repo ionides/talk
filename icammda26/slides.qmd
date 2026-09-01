@@ -2,8 +2,7 @@
 title: "Pypomp: Inference for partially observed Markov process models in Python with JAX"
 author:
   - "Edward Ionides\\newline University of Michigan \\newline \\newline
-  Coauthors: Aaron Abkemeier and the rest of the Pypomp develor team 
-  Bo Yang, Aaron Abkemeier, Aaron King, Kunyang He"
+  Coauthors: Aaron Abkemeier and the rest of the Pypomp develor team"
 date: Sep 2, 2026
 date-format: long
 subtitle: "With applications in epidemiology and elsewhere"
@@ -44,11 +43,7 @@ Model development and parameter estimation for non-Gaussian partially observed M
 - A POMP can also be callled a hidden Markov models (HMM) or state space model (SSM).
 
 
-## Applications of POMP models
-
-
-
-## Model diagram (top) and data (bottom) for historic cholera mortality in Dhaka, Bangladesh
+## POMP example: Diagram (top) and data (bottom) for historic cholera mortality in Dhaka, Bangladesh, via a Susceptible-Infected-Recovered (SIR) model
 
 \includegraphics[width=10cm]{../queens25/tikzcholera.png}
 
@@ -72,9 +67,59 @@ plt.show()
 ```
 
 
+## Why is epidemiological and ecological inference hard?
+
+- **Complex, open, nonlinear, and non‑stationary systems:**\
+  Precise “laws of nature” are unavailable.\
+  It is useful to model them as stochastic processes.\
+  Multiple competing explanations are possible.
+
+- **Central scientific goals:**\
+  Which explanations are most favored by the data?\
+  Which kinds of data are most informative?
+
+- **Central applied goals:**\
+  How to design ecological or epidemiological intervention?\
+  How to make accurate forecasts?
+
+- **Time series** are particularly useful sources of data.
 
 
-## Why Pypomp? Why do we need new software for POMP models?
+## Obstacles to inference
+
+*Obstacles for **ecological** modeling and inference via nonlinear mechanistic models enumerated by* @bjornstad01:
+
+1. Combining measurement noise and process noise.  
+2. Including covariates in mechanistically plausible ways.  
+3. Using continuous‑time models.  
+4. Modeling and estimating interactions in coupled systems.  
+5. Dealing with unobserved variables.  
+6. Modeling spatial‑temporal dynamics.
+
+The same issues arise for **epidemiological** modeling and inference via nonlinear mechanistic models.
+
+The *partially observed Markov process* (POMP) modeling framework addresses most of these problems effectively.
+
+
+## POMP case studies: Questions and answers {.allowframebreaks}
+
+1. [How does one combine various data types to quantify asymptomatic COVID‑19 infections?](https://doi.org/10.1073/pnas.2019716118) [@subramanian21]  
+2. [How effective have various non‑pharmaceutical interventions been at controlling SARS‑CoV‑2 spread in hospitals?](https://doi.org/10.3201/eid2807.212339) [@shirreff22]  
+3. [How does one use incidence and mobility data to infer key epidemiological parameters?](https://doi.org/10.1371/journal.pcbi.1010206) [@andrade22]  
+4. [How does one make forecasts for an outbreak of an emerging infectious disease?](https://doi.org/10.1098/rspb.2015.0347) [@king15]  
+5. [How does one build a system for real‑time surveillance of COVID‑19 using epidemiological and mobility data?](https://doi.org/10.1073/pnas.2111870119) [@fox22]  
+6. [What strategies are effective at containing mumps spread on college campuses?](https://doi.org/10.1098/rsos.210948) [@shah22]  
+7. [What explains the resurgence of pertussis in countries with sustained high vaccine coverage?](https://doi.org/10.1126/scitranslmed.aaj1748) [@domenech_de_celles18]  
+8. [Do subclinical infections of pertussis play an important epidemiological role?](https://doi.org/10.1371/journal.pone.0072086) [@lavine13]  
+9. [Can serotype‑specific immunity explain the strain dynamics of human enteroviruses?](https://doi.org/10.1126/science.aat6777) [@pons_salort18]  
+10. [How does dynamic variation in individual sexual behavior contribute to the HIV epidemic? How does this compare to the role of heterogeneity between individuals?](https://doi.org/10.1093/aje/kwv044) [@romero_severson15]  
+11. [What is the contribution of adults to polio transmission?](https://doi.org/10.1073/pnas.1323688111) [@blake14]  
+12. [What explains the interannual variability of malaria?](https://doi.org/10.1371/journal.pcbi.1000898) [@laneri10]  
+13. [Can hydrology explain the seasonality of cholera?](https://doi.org/10.1016/j.advwatres.2016.11.012) [@baracchini17]  
+14. [What roles are played by asymptomatic infection and waning immunity in cholera epidemics?](https://doi.org/10.1038/nature07084) [@king08]  
+
+
+## Why Pypomp? Why new software for POMP models?
 
 ### First, an introduction to the R-pomp family of packages
 
@@ -96,34 +141,6 @@ plt.show()
 
 
 
-
-## Why JAX?
-
-
-
-
-
-Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
-
-- Asfaw, Park, King & Ionides (2024). spatPomp: An R package for spatiotemporal partially observed Markov process models. _Journal of Open Source Software._
-
-- Ning & Ionides (2023). Iterated block particle filter for high-dimensional parameter learning: Beating the curse of dimensionality. _Journal of Machine Learning Research._
-
-- Li, Ionides, King, Pascual & Ning (2024). Inference on spatiotemporal dynamics for coupled biological populations. _Journal of the Royal Society Interface_.
-
-- Wheeler, Rosengart, Jiang, Tan, Treutle & Ionides (2024). Informing policy via dynamic models: Cholera in Haiti. _PLOS Computational Biology._
-
-
-## Outline
-
-- What is automatic differentiation (AD)?
-
-- Why is AD important for statistical inference? Existing evidence.
-
-- What has delayed the impact of AD for inference on nonlinear stochastic dynamic systems?
-
-- AD for simulation-based inference on mechanistic models using particle filters and GPUs.
-
 ## Introduction to automatic differentiation (AD)
 
 - AD is numerical differentation where compiled code automatically computes a massive chain rule, taking advantage of exact expressions for the numerical derivative of basic operations (+, -, $\times$, $\log$, $\exp$, $\sin$, $\cos$, etc).
@@ -143,11 +160,11 @@ Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
 
 - Prophet: automatic forecasting
 
-<!--
-- AD model builder (TMB): random effect models in ecology and fisheries
--->
+- AD Model Builder (ADMB) and Template Model Builder (TMB): random effect models in ecology and fisheries
 
-### Conclusion: AD has allowed growth in model compexity and data size.
+\
+
+### __Conclusion: AD has allowed growth in model compexity and data size.__
 
 
 ## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
@@ -161,6 +178,74 @@ Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
 - Remarkably, these iterated forecast and correction steps provide an unbiased estimate of the likelihood for the model.
 
 - PF just needs a simulator from the dynamic model, not transition probabilities. It is plug-and-play.
+
+
+
+## Why JAX?
+
+* Actively developed by Google: "Google researchers have built and trained models like Gemini and Gemma on JAX, and it’s also used by researchers for a wide range of advanced applications." (https://io.google/2025/explore/technical-session-1)
+
+* JAX code is Python, replacing numpy and scipy with jax.numpy and jax.scipy
+
+* JAX composable transformations:
+    + vmap: vectorization
+    + grad: autodiff
+    + jit: just-in-time compilation
+
+* JAX uses XLA: accelerated linear algebra
+    + distributes work across CPU/GPU/TPU cores
+
+
+
+## A previously difficult POMP likelihood maximization is easy with AD and quick/cheap with GPU
+
+- We benchmark on an SIR$^3$S model fitted to 50yr of monthly cholera mortality in historical Dacca, Bangladesh.
+
+- Flexible modeling of seasonality and long-term trends lead to a highly parameterized model.
+
+- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in \citet{king08}. Possible with a large computing cluster and considerable dedication.
+
+- Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
+
+- Here, we make a preliminary search with IF2, followed by stochastic gradient ascent with DMOP-$\alpha$.
+
+
+## Results 1. Speed
+
+- PF on 1 cpu core with $10^4$ particles using R-pomp with the model compiled into C
+
+    + 9.75 sec
+
+- PF on a $10^4$ core GPU with $10^4$ particles using pypomp
+
+    + 0.17 sec
+
+- Here, a $10^4$ core GPU is worth 57 CPU cores.
+
+- This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
+
+- Additional vectorization helps for replicated GPU evaluations
+
+    + For 360 replications of iterated filtering, a GPU is worth 450 CPU cores.
+
+<!--
+7.4 * 36 = 266.4 for pfilter, 120 reps
+12.53 * 36 = 451.08 for mif, 360 reps
+results for 3000 particles, pfilter on dacca
+AJA thesis proposal
+-->
+
+## Results 2. The value of AD
+
+\begin{figure}[ht]
+\vspace{-5mm}
+    \centering
+    \includegraphics[width=5.2cm]{../queens25/boxplot.png}
+    \includegraphics[width=5.2cm]{../queens25/boxplot_all.png}
+    \caption{Performance of IFAD and IF2. \textbf{A:} the best out of every 10 runs. \textbf{B:} All searches. 
+    The dotted red line shows the true maximized log-likelihood.}
+\end{figure}
+
 
 
 ## Why is AD not standard for the particle filter (PF) likelihood?
@@ -297,80 +382,115 @@ Likelihood-based inference for nonlinear non-Gaussian SpatPOMP models
 Regularity conditions: 1 and 2 require bounded derivatives. 4 and 5 require a mixing property for the latent Markov process.
 
 
+## The Pypomp library
+
+- Pypomp is a Python framework for building, simulating and fitting partially observed Markov process (POMP) models @abkemeier25.
+
+- Pypomp builds methodology for POMP models in terms of arbitrary user-specified POMP models.  
+
+- Pypomp provides tools, documentation, and examples to help users specify POMP models.  
+
+- Pypomp provides a platform for modification and sharing of models, data-analysis workflows, and methodological development.  
+
+- Pypomp is built on JAX for just‑in‑time compilation, automatic differentiation (AD) and CPU/GPU/TPU execution.
 
 
-## Why JAX?
+## Structure of the pypomp package
 
-* Actively developed by Google: "Google researchers have built and trained models like Gemini and Gemma on JAX, and it’s also used by researchers for a wide range of advanced applications." (https://io.google/2025/explore/technical-session-1)
+We conventionally denote the `pypomp` package by `pp`:
+```{python}
+#| eval: false
+#| echo: true
+import pypomp as pp
+```
+Suppose `mod` is a pypomp representation of a POMP model
+- `mod` has class `Pomp`.
+- `mod` is built using the `pp.Pomp` constructor.
 
-* JAX code is Python, replacing numpy and scipy with jax.numpy and jax.scipy
+It is useful to divide the `pypomp` package functionality into different levels:
 
-* JAX composable transformations:
-    + vmap: vectorization
-    + grad: autodiff
-    + jit: just-in-time compilation
-
-* JAX uses XLA: accelerated linear algebra
-    + distributes work across CPU/GPU/TPU cores
-
-
-
-## A previously difficult POMP likelihood maximization is easy with AD and quick/cheap with GPU
-
-- We benchmark on an SIR$^3$S model fitted to 50yr of monthly cholera mortality in historical Dacca, Bangladesh.
-
-- Flexible modeling of seasonality and long-term trends lead to a highly parameterized model.
-
-- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in \citet{king08}. Possible with a large computing cluster and considerable dedication.
-
-- Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
-
-- Here, we make a preliminary search with IF2, followed by stochastic gradient ascent with DMOP-$\alpha$.
+- Basic model components: building `mod` to specify the desired POMP model
+- Elementary POMP algorithms: investigating `mod` at a fixed set of parameters
+- Inference algorithms: parameter estimation, model selection and diagnostics
 
 
-## Results 1. Speed
+## Basic model components
 
-- PF on 1 cpu core with $10^4$ particles using R-pomp with the model compiled into C
+* Basic model components are user-specified methods belonging to `mod` that perform the elementary computations that specify a POMP model. There are five of these:
 
-    + 9.75 sec
+**`rinit`**: simulator for the initial-state distribution, i.e., the distribution of the latent state at time $t_0$.  
 
-- PF on a $10^4$ core GPU with $10^4$ particles using pypomp
+**`rproc`**: simulator for the process model.  
 
-    + 0.17 sec
+**`rmeas`** and **`dmeas`**: simulator and density evaluation procedure, respectively, for the measurement model.  
 
-- Here, a $10^4$ core GPU is worth 57 CPU cores.
+**`par_trans`**: parameter transformations. Optimization is helped by transforming parameters to remove constraints.
 
-- This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
+* The scientist must specify whichever basic model components are required for the algorithms that the scientist uses. 
 
-- Additional vectorization helps for replicated GPU evaluations
+<!---
+Future pypomp algorithms may implement `dprocess` (transition density for the process model) and `rprior`, `dprior` to represent Bayesian prior belief.
+--->
 
-    + For 360 replications of iterated filtering, a GPU is worth 450 CPU cores.
+<!---
 
-<!--
-7.4 * 36 = 266.4 for pfilter, 120 reps
-12.53 * 36 = 451.08 for mif, 360 reps
-results for 3000 particles, pfilter on dacca
-AJA thesis proposal
--->
+- `rprocess` and `dprocess`: simulator and density evaluation procedure, respectively, for the process model.  
+- `rprior` and `dprior`: simulator and density evaluation procedure, respectively, for the prior distribution.  
+- `skeleton`: evaluation of a deterministic skeleton.  
+--->
 
-## Results 2. The value of AD
+## Classes for basic model components
 
-\begin{figure}[ht]
-\vspace{-5mm}
-    \centering
-    \includegraphics[width=5.2cm]{../queens25/boxplot.png}
-    \includegraphics[width=5.2cm]{../queens25/boxplot_all.png}
-    \caption{Performance of IFAD and IF2. \textbf{A:} the best out of every 10 runs. \textbf{B:} All searches. 
-    The dotted red line shows the true maximized log-likelihood.}
-\end{figure}
+**`mod.rinit`** has class `RInit`
+
+**`mod.dmeas`** has class `DMeas`
+
+**`mod.rmeas`** has class `RMeas`
+
+**`mod.rproc`** has class `RProc`
+
+**`mod.par_trans`** has class `ParTrans`
+
+These methods are not vectorized, i.e., they evaluate the model properties for a single realization of the model.
+
+They are designed to be vectorized via a call to JAX `vmap`, and this happens internally in pypomp methods. 
+
+
+## Elementary POMP algorithms
+These are methods for `mod` that use the basic components or the data to interrogate the confrontation without attempting to estimate parameters.  There are currently two of these:
+
+**`simulate`** performs simulations of the POMP model, i.e., it samples from the joint distribution of latent states and observables.  
+
+**`pfilter`** runs a sequential Monte Carlo (particle filter) algorithm to compute the likelihood and (optionally) estimate the prediction and filtering distributions of the latent state process.  
+
+
+## POMP inference algorithms  
+These are methods for `Pomp` models that call the elementary algorithms and are used for estimation of parameters and other inferential tasks. There are currently three of these:
+
+**`mif`**: Likelihood maximization via the IF2 iterated filtering algorithm.
+
+**`dmop`**: An AD gradient estiamte using a "measurement off-parameter" particle filter.
+
+**`train`**: Likelihood maximization based on `dmop` or related strategies.
+
+
 
 ## Summary
 
-* Remarkably, likelihood-based inference is possible from noisy measurements of complex, high-dimensional, nonlinear dynamic systems.
+* Remarkably, likelihood-based inference is possible from noisy measurements of complex nonlinear stochastic partially observed dynamic systems.
 
 * AD and massively parallel computing will push capabilities to a new level.
 
-* Next step: AD PF advances can be combined with SpatPOMP filtering advances for high-dimensional systems
+* Pypomp provides a software implementation for modern POMP data analysis.
+
+* Some useful links
+
+  - A short course on epidemic modeling and inference using Pypomp: <https://pypomp.github.io/tutorials/sbied>
+
+  - A full semester course on time series analysis, leading up to POMP modeling: <https://ionides.github.io/531w26/>
+
+  - Various Pypomp repositories: <https://github.com/pypomp>
+
 
 # Thank you!   
 
