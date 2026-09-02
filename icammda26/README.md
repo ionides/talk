@@ -5,7 +5,7 @@
 Wed 9/2, 9am ET
 
 
-## Slides: [pdf](slides.pdf)
+## Slides: [pdf](https://ionides.github.io/talk/icammda26/slides.pdf)
 
 ## Abstract
 
