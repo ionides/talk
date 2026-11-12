@@ -1,24 +1,24 @@
 ---
-title: "Pypomp: Inference for partially observed Markov process models in Python with JAX"
+title: "Pypomp: Inference for partially observed Markov process models using GPUs with automatic differentiation via JAX"
 author:
-  - "Edward Ionides\\newline University of Michigan \\newline \\newline
-  Coauthors: Aaron Abkemeier and the rest of the Pypomp developer team"
+  - "Edward Ionides\\newline University of Michigan\\newline Slides at <https://github.com/ionides/talk> \\newline\\newline
+  Coauthors: Aaron Abkemeier, Kevin Tan, Kunyang He, and the rest of the Pypomp development team"
 date: Nov 13, 2026
 date-format: long
 format:
   beamer:
+    slide-level: 2
     cite-method: natbib
     biblio-style: apalike
     header-includes: |
       \setbeamertemplate{footline}[page number]
-
 bibliography: bib.bib
 ---
 
 
 
 
-## What is a partially observed Markov process (POMP) model?
+## What is a partially observed Markov process (POMP)?
 
 <!---
 High Performance Statistical Computing (HSPC)
@@ -35,15 +35,13 @@ BIO
 Prof. Ionides works on statistical analysis of dynamic systems with applications in the biological and health sciences, and specifically in disease transmission. He has developed theoretical and computational aspects of statistical methodologies for inference problems that arise when relating time series data to partially observed stochastic nonlinear disease transmission systems. He has published on the epidemiological dynamics of cholera, COVID-19, HIV, influenza, malaria, measles and polio.  Recently, he has developed methodology for inferring disease transmission dynamics from genetic sequence data on pathogens, and for inference on nonlinear, non-Gaussian spatiotemporal systems. He has developed novel classes of stochastic dynamic models that help to fill the gap between mathematical models of biological systems and statistical models that quantitatively describe available data. Prof. Ionides received his undergraduate degree from University of Cambridge and his PhD from University of California, Berkeley. He is an elected fellow of the American Association for the Advancement of Science, the Institute for Mathematical Statistics, and the International Statistical Institute. 
 --->
 
+- A time-varying latent dynamic state that is stochastic and indirectly observed.
 
-- A formalization of a __compartment model__ for dynamic systems.
+- The future of the dynamic system is independent of the past given the current state, i.e., __Markovian__. If necessary, we can include memory in the current state.
 
-- The latent state dynamics are stochastic and indirectly observed.
+- A POMP can also be called a hidden Markov models (HMM) or state space model (SSM).
 
-- We suppose the dynamics are independent of the past given the current state,i.e., __Markovian__. If necessary, we can include memory in the current state.
-
-- A POMP can also be callled a hidden Markov models (HMM) or state space model (SSM).
-
+- Includes  __compartment models__ for dynamic systems.
 
 ## POMP example: Diagram (top) and data (bottom) for historic cholera mortality in Dhaka, Bangladesh, via a Susceptible-Infected-Recovered (SIR) model
 
@@ -87,9 +85,21 @@ plt.show()
 - **Time series** are particularly useful sources of data.
 
 
+## Other highly nonlinear non-Gaussian POMP models
+
+- **Robotics**. Tracking can lead to multi-modal belief distributions.
+
+- **Finance**. Stochastic volatility is a textbook example, but perhaps not a practical one?
+
+- **Neuroscience**. Neuron firing events are highly nonlinear.
+
+- **Climate modeling and weather forecasting**. Very high dimensional problems.
+
+This talk does not focus on these applications. If you are interested in them, let's talk later!
+
 ## Obstacles to inference
 
-*Obstacles for **ecological** modeling and inference via nonlinear mechanistic models enumerated by* @bjornstad01:
+Obstacles for **ecological** and **epidemiological** modeling and inference via nonlinear mechanistic models enumerated by @bjornstad01:
 
 1. Combining measurement noise and process noise.  
 2. Including covariates in mechanistically plausible ways.  
@@ -98,9 +108,7 @@ plt.show()
 5. Dealing with unobserved variables.  
 6. Modeling spatial‑temporal dynamics.
 
-The same issues arise for **epidemiological** modeling and inference via nonlinear mechanistic models.
-
-The *partially observed Markov process* (POMP) modeling framework addresses most of these problems effectively.
+The *partially observed Markov process* (POMP) modeling framework addresses these problems.
 
 
 ## POMP case studies: Questions and answers {.allowframebreaks}
@@ -129,19 +137,28 @@ The *partially observed Markov process* (POMP) modeling framework addresses most
 
 * Extensions: panel time series data (panelPomp), spatiotemporal data (spatPomp), phylodynamic data (phyloPomp).
 
-* Limitations: R is not convenient for modern advances in computing:
+* R is not convenient for modern advances in computing:
 
-  - Automatic differentation (AD)
+  - Automatic differentiation (AD)
 
   - Graphical processing unit (GPU) hardware
 
-  To incorporate these, it may be better to start afresh.
+### Pypomp has AD and GPU capabilities and new algorithms to take advantage of them
 
-### pypomp is a Python extension of pomp enabling AD and GPU.
-
-* Current status: Pypomp is available at https://github.com/pypomp. You are welcome to join the Pypomp community.
+* Pypomp is available at https://github.com/pypomp. You are welcome to join the Pypomp community \raisebox{-1mm}{\includegraphics[height=5mm]{star.jpg}} 
 
 
+
+## Related projects
+Other groups have recently noticed the potential of GPU/AD for POMP models, and started their own projects:
+
+* cuthbert
+* PyDPF
+* PFJAX
+* Pypomp is better and faster, at least for our target applications.
+
+    + <https://github.com/pypomp/tutorials> for some comparisons
+    + <https://github.com/pypomp/quant> for many more comparisons
 
 ## Introduction to automatic differentiation (AD)
 
@@ -164,9 +181,7 @@ The *partially observed Markov process* (POMP) modeling framework addresses most
 
 - AD Model Builder (ADMB) and Template Model Builder (TMB): random effect models in ecology and fisheries
 
-\
-
-### __Conclusion: AD has allowed growth in model compexity and data size.__
+### __Conclusion: AD has allowed growth in model complexity and data size.__
 
 
 ## Mechanistic POMP models and the particle filter (PF, a.k.a. sequential Monte Carlo, SMC)
@@ -180,7 +195,6 @@ The *partially observed Markov process* (POMP) modeling framework addresses most
 - Remarkably, these iterated forecast and correction steps provide an unbiased estimate of the likelihood for the model.
 
 - PF just needs a simulator from the dynamic model, not transition probabilities. It is plug-and-play.
-
 
 
 ## Why JAX?
@@ -201,40 +215,33 @@ The *partially observed Markov process* (POMP) modeling framework addresses most
 
 ## A previously difficult POMP likelihood maximization is easy with AD and quick/cheap with GPU
 
-- We benchmark on an SIR$^3$S model fitted to 50yr of monthly cholera mortality in historical Dacca, Bangladesh.
+- We benchmark on an SIR$^3$S model fitted to 50yr of historical monthly cholera mortality in Dhaka, Bangladesh.
 
 - Flexible modeling of seasonality and long-term trends lead to a highly parameterized model.
 
-- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in \citet{king08}. Possible with a large computing cluster and considerable dedication.
+- Tractable, but difficult, using an early iterated filtering (IF1) algorithm in @king08. Possible with a large computing cluster and considerable dedication.
 
-- Considerably easier, yet still hard, using the IF2 algorithm of \citet{ionides15}.
+- Considerably easier, yet still hard, using the IF2 algorithm of @ionides15.
 
 - Here, we make a preliminary search with IF2, followed by stochastic gradient ascent with DMOP-$\alpha$.
 
 
 ## Results 1. Speed
 
-- PF on 1 cpu core with $10^4$ particles using R-pomp with the model compiled into C
+- Likelihood maximization on one 36-core node with $10^4$ particles and 36 replications using R-pomp with the model compiled into C
 
-    + 9.75 sec
+    + 1609 sec
 
-- PF on a $10^4$ core GPU with $10^4$ particles using pypomp
+- On $10^4$ core GPU using Pypomp
 
-    + 0.17 sec
-
-- Here, a $10^4$ core GPU is worth 57 CPU cores.
+    + 28.5 sec
 
 - This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
 
-- Additional vectorization helps for replicated GPU evaluations
-
-    + For 360 replications of iterated filtering, a GPU is worth 450 CPU cores.
+- A GPU is worth 2923 CPU cores here. In some situations, the value can be up to 12,000 cores.
 
 <!--
-7.4 * 36 = 266.4 for pfilter, 120 reps
-12.53 * 36 = 451.08 for mif, 360 reps
-results for 3000 particles, pfilter on dacca
-AJA thesis proposal
+results from pypomp:tutorials/article/ms.pdf
 -->
 
 ## Results 2. The value of AD
@@ -242,9 +249,8 @@ AJA thesis proposal
 \begin{figure}[ht]
 \vspace{-5mm}
     \centering
-    \includegraphics[width=5.2cm]{../queens25/boxplot.png}
-    \includegraphics[width=5.2cm]{../queens25/boxplot_all.png}
-    \caption{Performance of IFAD and IF2. \textbf{A:} the best out of every 10 runs. \textbf{B:} All searches. 
+    \includegraphics[width=8cm]{precise_raincloud.pdf}
+    \caption{Performance of IF2 and IFAD with different values of $\alpha$.
     The dotted red line shows the true maximized log-likelihood.}
 \end{figure}
 
@@ -252,35 +258,14 @@ AJA thesis proposal
 
 ## Why is AD not standard for the particle filter (PF) likelihood?
 
-<!--
-- Likelihood evaluation and maximization permits parameter estimation, confidence intervals, diagnostic testing, model selection.
-
-- Derivatives help with maximization. They also help with Bayesian inference, via Hamiltonian Monte Carlo (HMC).
--->
-
 - So, why doesn't everyone use AD for PF?
 
 - Technical difficulties
 
-    1. Resampling is discontinuous: discrete and so piecewise constant.
+    1. Resampling is discrete and so piecewise constant. A differentiable function can be approximated by a piecewise constant function, but **the derivative of the approximation is not a good estimate of the derivative of the function**. 
     
-    2. The derivative estimate can be numerically unstable even when the log-likelihood estimate is stable.
+    2. Existing approaches to solve this lead to high Monte Carlo variance.
 
- <!--
-## Hypothesis: PF $+$ AD $+$ GPU is a scientific opportunity
-
-- Particle filter methods have proved effective where they are applicable because
-
-    + They approximate the actual likelihood: statistical efficiency.
-
-    + Simulation-based "plug-and-play" structure is convenient for scientific exploration.
-
-
-- Deep learning methods use AD $+$ GPU.
-
-    + Artificial neurons with arbitrary weight propagation rules should be less pertinent than particles that directly simulate the dynamic process and are properly weighted to estimate the likelihood.
-
--->
 
 ## Previous attempts at AD for PF
 
@@ -288,9 +273,9 @@ AJA thesis proposal
 
 - Ignoring the resampling when calculating the derivative.
 
-- Obtaining a smooth particle filter at the cost of inferior scaling and loss of the plug-and-play property.
+- Using unbiased but high variance estimates.
 
-- AD for smooth functions estimated by Monte Carlo expectation of non-smooth functions has been widely studied. Applied to PF, previous methods have struggled with stability for a long time series.
+- Obtaining a smooth particle filter at the cost of inferior scaling and loss of the plug-and-play property.
 
 \vspace{2mm}
 
@@ -300,7 +285,7 @@ AJA thesis proposal
 
 ## Differentiated Measurement Off Parameter (DMOP) filter
 
-* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation \citep{tan24}.
+* Numerically stable automatic derivatives, with controlled bias and variance, from a plug-and-play particle filter with unbiased likelihood evaluation [@tan24].
 
 ### Measurement Off-Parameter (MOP-$\alpha$)
 
@@ -361,13 +346,13 @@ AJA thesis proposal
 
 ## Comparing MOP-$\alpha$ and DMOP-$\alpha$
 
-- The two algorithms are similar
+- MOP-$\alpha$ has the resampling parameter, $\theta$, and the base parameter, $\phi$
 
-- DMOP-$\alpha$ only has $\theta$, not $\phi$.
+- DMOP-$\alpha$ only has $\theta$ since it evaluates MOP-$\alpha$ and its derivative at $\phi=\theta$.
 
 - The role of $\phi$ in MOP-$\alpha$ is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
 
-    +  $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
+- $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
 
 ## Outline of theory for MOP-$\alpha$ and DMOP-$\alpha$
 
@@ -379,14 +364,14 @@ AJA thesis proposal
 
 4. DMOP-$\alpha$ has a bias bounded linearly by the length, $N$, of the time series with a coefficient that decreases to zero as $\alpha\to 1$.
 
-5. The variance of DMOP-$\alpha$ is $O(N^4/J)$ at $\alpha=1$ but $O(N/J)$ for $\alpha<1$.
+5. The variance of DMOP-$\alpha$ is $O(N^2/J)$ at $\alpha=1$ but $O(N/J)$ for $\alpha<1$.
 
 Regularity conditions: 1 and 2 require bounded derivatives. 4 and 5 require a mixing property for the latent Markov process.
 
 
-## The Pypomp library
+## Pypomp
 
-- Pypomp is a Python framework for building, simulating and fitting partially observed Markov process (POMP) models @abkemeier25.
+- Pypomp is a Python library for building, simulating and fitting partially observed Markov process (POMP) models [@abkemeier25].
 
 - Pypomp builds methodology for POMP models in terms of arbitrary user-specified POMP models.  
 
@@ -397,28 +382,28 @@ Regularity conditions: 1 and 2 require bounded derivatives. 4 and 5 require a mi
 - Pypomp is built on JAX for just‑in‑time compilation, automatic differentiation (AD) and CPU/GPU/TPU execution.
 
 
-## Structure of the pypomp package
+## Using the pypomp package
 
+Pypomp is available on PyPI:
+```{bash}
+pip install pypomp
+```
 We conventionally denote the `pypomp` package by `pp`:
 ```{python}
 #| eval: false
 #| echo: true
 import pypomp as pp
 ```
-Suppose `mod` is a pypomp representation of a POMP model
-- `mod` has class `Pomp`.
-- `mod` is built using the `pp.Pomp` constructor.
+Suppose `mod` is a Pypomp representation of a POMP model. `mod` has class `Pomp` and is built using the `pp.Pomp` constructor. Functionality of `mod` can be divided into different levels:
 
-It is useful to divide the `pypomp` package functionality into different levels:
-
-- Basic model components: building `mod` to specify the desired POMP model
+- Model components: building `mod` to specify the desired POMP model
 - Elementary POMP algorithms: investigating `mod` at a fixed set of parameters
 - Inference algorithms: parameter estimation, model selection and diagnostics
 
 
-## Basic model components
+## Model components
 
-* Basic model components are user-specified methods belonging to `mod` that perform the elementary computations that specify a POMP model. There are five of these:
+* Model components are user-specified methods belonging to `mod` that perform the elementary computations that specify a POMP model. There are five of these:
 
 **`rinit`**: simulator for the initial-state distribution, i.e., the distribution of the latent state at time $t_0$.  
 
@@ -428,7 +413,7 @@ It is useful to divide the `pypomp` package functionality into different levels:
 
 **`par_trans`**: parameter transformations. Optimization is helped by transforming parameters to remove constraints.
 
-* The scientist must specify whichever basic model components are required for the algorithms that the scientist uses. 
+* The scientist must specify whichever model components are required for the algorithms that the scientist uses. 
 
 <!---
 Future pypomp algorithms may implement `dprocess` (transition density for the process model) and `rprior`, `dprior` to represent Bayesian prior belief.
@@ -441,7 +426,7 @@ Future pypomp algorithms may implement `dprocess` (transition density for the pr
 - `skeleton`: evaluation of a deterministic skeleton.  
 --->
 
-## Classes for basic model components
+## Classes for model components
 
 **`mod.rinit`** has class `RInit`
 
@@ -453,13 +438,13 @@ Future pypomp algorithms may implement `dprocess` (transition density for the pr
 
 **`mod.par_trans`** has class `ParTrans`
 
-These methods are not vectorized, i.e., they evaluate the model properties for a single realization of the model.
+These methods are not vectorized, i.e., the user specifies model properties for a single realization of the model.
 
-They are designed to be vectorized via a call to JAX `vmap`, and this happens internally in pypomp methods. 
+They are designed to be vectorized via a call to JAX `vmap`, and this happens internally in Pypomp methods. 
 
 
 ## Elementary POMP algorithms
-These are methods for `mod` that use the basic components or the data to interrogate the confrontation without attempting to estimate parameters.  There are currently two of these:
+These are methods for `mod` that use the basic components or the data, without attempting to estimate parameters.  Two important methods:
 
 **`simulate`** performs simulations of the POMP model, i.e., it samples from the joint distribution of latent states and observables.  
 
@@ -481,7 +466,7 @@ These are methods for `Pomp` models that call the elementary algorithms and are 
 
 * Remarkably, likelihood-based inference is possible from noisy measurements of complex nonlinear stochastic partially observed dynamic systems.
 
-* AD and massively parallel computing will push capabilities to a new level.
+* AD and massively parallel computing are pushing capabilities to a new level.
 
 * Pypomp provides a software implementation for modern POMP data analysis.
 
@@ -494,8 +479,11 @@ These are methods for `Pomp` models that call the elementary algorithms and are 
   - Various Pypomp repositories: <https://github.com/pypomp>
 
 
-# Thank you!   
+## Thank you!   
 
+* Take a look at <https://github.com/pypomp/pypomp>
+
+* If you like it, give it a \raisebox{-1mm}{\includegraphics[height=5mm]{star.jpg}} 
 
 # References
 

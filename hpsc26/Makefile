@@ -12,19 +12,25 @@ REXE = R --vanilla
 RCMD = $(REXE) CMD
 RSCRIPT = Rscript --vanilla
 
+VENV_DIR = ../.venv
+PYTHON = python3.14
+PIP = $(VENV_DIR)/bin/pip
+VENV_PYTHON = $(VENV_DIR)/bin/python
+SOURCE = source
 
-%.pdf: export R_QPDF=qpdf
-%.pdf: export R_GSCMD=gs
-%.pdf: export GS_QUALITY=ebook
+# Use the environment managed by the parent uv project for Quarto execution.
+export QUARTO_PYTHON ?= $(abspath $(VENV_PYTHON))
+
+.PHONY: venv 
+
+%.pdf: %.qmd
+	quarto render "$*.qmd" --to beamer
 
 %.pdf: %.tex
 	$(PDFLATEX) $*
 	-$(BIBTEX) $*
 	$(PDFLATEX) $*
 	$(PDFLATEX) $*
-
-%.pdf: %.qmd
-	quarto render "$*.qmd" --to beamer
 
 %.tex: %.qmd
 	quarto render "$*.qmd" --to latex
@@ -58,3 +64,16 @@ clean:
 fresh: clean
 	$(RM) *.ps *.bbl *.ind *.dvi 
 	$(RM) -r cache/* figure/*
+
+skip_code:
+	quarto render ms.qmd --to pdf --no-execute
+
+# Create or sync virtual Python environment
+venv:
+	@echo "Synchronizing virtual environment with uv..."
+	uv sync --project ..
+	@echo "Dependencies installed."
+
+
+
+
