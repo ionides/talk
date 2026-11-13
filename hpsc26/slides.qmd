@@ -1,5 +1,5 @@
 ---
-title: "Pypomp: Inference for partially observed Markov process models using GPUs with automatic differentiation via JAX"
+title: "Pypomp: Inference for partially observed Markov process models using GPUs and automatic differentiation with JAX"
 author:
   - "Edward Ionides\\newline University of Michigan\\newline Slides at <https://ionides.github.io/talks>\\newline\\newline
   Coauthors: Aaron Abkemeier, Kevin Tan, Kunyang He, and the rest of the Pypomp development team"
