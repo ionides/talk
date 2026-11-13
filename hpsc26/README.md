@@ -1,4 +1,4 @@
-# Pypomp: Inference for partially observed Markov process models in Python with JAX
+# Pypomp: Inference for partially observed Markov process models using GPUs and automatic differentation with JAX
 
 [High Performance Statistical Computing (HSPC)](https://hpsc4science.org/)
 

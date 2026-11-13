@@ -1,7 +1,7 @@
 ---
 title: "Pypomp: Inference for partially observed Markov process models using GPUs with automatic differentiation via JAX"
 author:
-  - "Edward Ionides\\newline University of Michigan\\newline Slides at <https://github.com/ionides/talk> \\newline\\newline
+  - "Edward Ionides\\newline University of Michigan\\newline Slides at <https://ionides.github.io/talks>\\newline\\newline
   Coauthors: Aaron Abkemeier, Kevin Tan, Kunyang He, and the rest of the Pypomp development team"
 date: Nov 13, 2026
 date-format: long
@@ -228,17 +228,20 @@ Other groups have recently noticed the potential of GPU/AD for POMP models, and 
 
 ## Results 1. Speed
 
-- Likelihood maximization on one 36-core node with $10^4$ particles and 36 replications using R-pomp with the model compiled into C
+- Iterated filtering likelihood maximization on one 36-core Intel Xeon with $10^4$ particles and 36 replications using R-pomp with the model compiled into C
 
     + 1609 sec
 
-- On $10^4$ core GPU using Pypomp
+- On one $2.4\times 10^4$ core RTX6000 Blackwell GPU using Pypomp
 
     + 28.5 sec
 
-- This is deliberately indirect: we are also comparing compiled C with jit-compiled Python.
+- This is deliberately indirect: we are simultaneously comparing differences in software and hardware.
 
-- A GPU is worth 2923 CPU cores here. In some situations, the value can be up to 12,000 cores.
+- Here, a GPU is worth 2,923 CPU cores. 
+
+- Values up to 12,000 core equivalents have been recorded for some Pypomp tasks.
+
 
 <!--
 results from pypomp:tutorials/article/ms.pdf
@@ -346,13 +349,13 @@ results from pypomp:tutorials/article/ms.pdf
 
 ## Comparing MOP-$\alpha$ and DMOP-$\alpha$
 
-- MOP-$\alpha$ has the resampling parameter, $\theta$, and the base parameter, $\phi$
+- MOP-$\alpha$ has the target parameter, $\theta$, and the base parameter, $\phi$
 
-- DMOP-$\alpha$ only has $\theta$ since it evaluates MOP-$\alpha$ and its derivative at $\phi=\theta$.
+- DMOP-$\alpha$ only has $\theta$ since it evaluates MOP-$\alpha$ and its derivative at $\phi=\theta$
 
 - The role of $\phi$ in MOP-$\alpha$ is taken by the $\mathtt{stop\_gradient}$ operator in DMOP-$\alpha$
 
-- $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass.
+- $\mathtt{stop\_gradient(x)}$ evaluates to $\mathtt{x}$ on the forward pass but is not differentiated on the backward pass
 
 ## Outline of theory for MOP-$\alpha$ and DMOP-$\alpha$
 
